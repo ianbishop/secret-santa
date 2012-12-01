@@ -101,18 +101,17 @@ def main(argv=None):
         if debug: mailServer.set_debuglevel(100)
 
         for santa, receipient in data.iteritems():
-
             msg = MIMEMultipart()
             msg['Subject'] = "Secret Santa!"
             msg['From'] = fromEmail
-            msg['To'] = santa
+            msg['To'] = santa.split(",")[1]
             msg.preamble = 'Secret Santa'
 
             msgAlternative = MIMEMultipart('alternative')
             msg.attach(msgAlternative)
-
-            text = attachment.replace("${santa}", utils.parseaddr(santa)[0]);
-            text = text.replace("${receipient}", utils.parseaddr(receipient)[0]);
+            
+            text = attachment.replace("${santa}", santa.split(",")[0])
+            text = text.replace("${receipient}", receipient.split(",")[0])
             text = MIMEText(text, 'html')
             msgAlternative.attach(text)
 
@@ -122,7 +121,7 @@ def main(argv=None):
                 mailServer.starttls()
                 mailServer.ehlo()
                 mailServer.login(username, password)
-                mailServer.sendmail(username, [santa], msg.as_string())
+                mailServer.sendmail(username, [santa.split(",")[1]], msg.as_string())
                 mailServer.close()
                 s += 1
 
